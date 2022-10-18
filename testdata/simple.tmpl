@@ -1,0 +1,11 @@
+#
+# Sample configuration file
+# {{.ansible_managed}}
+#
+
+export RAILS_ENV={{.ENVIRONMENT}}
+export VAR1={{.VAR1}}
+export DB_NAME={{cs .connection_string "Database"}}
+export HS_DB_HOST={{cs .connection_string "server"}}
+export HS_DB_UPDATE={{cs .connection_string "User ID"}}
+export HS_DB_UPDATE_PWD={{cs .connection_string "password"}}

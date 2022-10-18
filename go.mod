@@ -1,4 +1,4 @@
-module github.com/jjeffery/configtmpl
+module github.com/jjeffery/gotmpl
 
 go 1.18
 
