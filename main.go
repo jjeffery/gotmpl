@@ -183,7 +183,7 @@ func getEnv(envFile string, variables map[string]any) error {
 }
 
 func buildFile(templateFileName string, outputFileName string, variables map[string]any) (changed bool, err error) {
-	tmpl, err := template.New(templateFileName).Funcs(templateFuncs).ParseFiles(templateFileName)
+	tmpl, err := template.New(filepath.Base(templateFileName)).Funcs(templateFuncs).ParseFiles(templateFileName)
 	if err != nil {
 		return false, fmt.Errorf("cannot parse %s: %w", templateFileName, err)
 	}
@@ -253,7 +253,10 @@ func areFilesDifferent(fileName1, fileName2 string) bool {
 }
 
 func processStringTemplate(input string, variables map[string]any) (string, error) {
-	tmpl, err := template.New(newTemplateName()).Parse(input)
+	if !strings.Contains(input, "{{") {
+		return input, nil
+	}
+	tmpl, err := template.New("").Funcs(templateFuncs).Parse(input)
 	if err != nil {
 		return "", fmt.Errorf("cannot parse '%s': %w", input, err)
 	}
@@ -268,14 +271,7 @@ var (
 	templateFuncs = template.FuncMap{
 		"cs": connectionString,
 	}
-	nextTemplateNumber = 0
 )
-
-func newTemplateName() string {
-	name := fmt.Sprintf("tmpl%d", nextTemplateNumber)
-	nextTemplateNumber++
-	return name
-}
 
 func connectionString(cs string, key string) string {
 	splits := strings.Split(cs, ";")
