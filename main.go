@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 	"github.com/joho/godotenv"
 	flag "github.com/spf13/pflag"
@@ -128,9 +129,35 @@ func doWork(commandLine *CommandLine) error {
 	return nil
 }
 
+func getRegion(ctx context.Context) (string, error) {
+	region := os.Getenv("AWS_REGION")
+	if region != "" {
+		log("AWS_REGION =", region)
+		return region, nil
+	}
+	log("AWS_REGION not set, attempt to get from EC2 instance metadata")
+	cfg, err := awsconfig.LoadDefaultConfig(ctx)
+	if err != nil {
+		return "", fmt.Errorf("cannot create AWS default config for obtaining region: %w", err)
+	}
+	client := imds.NewFromConfig(cfg)
+	output, err := client.GetRegion(ctx, &imds.GetRegionInput{})
+	if err != nil {
+		log("Cannot get AWS region from EC2 metadata:", err)
+		return "", fmt.Errorf("cannot get AWS region: %w: set the AWS_REGION environment variable", err)
+	}
+	region = output.Region
+	log("AWS_REGION =", region)
+	return region, nil
+}
+
 func getParams(ssmPrefix string, variables map[string]any) error {
 	ctx := context.TODO()
-	cfg, err := awsconfig.LoadDefaultConfig(ctx)
+	region, err := getRegion(ctx)
+	if err != nil {
+		return err
+	}
+	cfg, err := awsconfig.LoadDefaultConfig(ctx, awsconfig.WithRegion(region))
 	if err != nil {
 		return err
 	}
