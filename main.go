@@ -269,7 +269,12 @@ func processStringTemplate(input string, variables map[string]any) (string, erro
 
 var (
 	templateFuncs = template.FuncMap{
-		"cs": connectionString,
+		"cs":               connectionString,
+		"connectionString": connectionString,
+		"lc":               strings.ToLower,
+		"toLower":          strings.ToLower,
+		"uc":               strings.ToUpper,
+		"toUpper":          strings.ToUpper,
 	}
 )
 
