@@ -22,10 +22,14 @@ type CommandLine struct {
 	Settings []string
 }
 
+var log = func(a ...any) {}
+
 func main() {
 	var commandLine CommandLine
 	var help bool
+	var verbose bool
 	flag.BoolVarP(&help, "help", "h", help, "Show help")
+	flag.BoolVarP(&verbose, "verbose", "v", help, "Log diagnostic messages to stdout")
 	flag.StringVarP(&commandLine.Template, "template", "t", commandLine.Template, "Template file (required)")
 	flag.StringVarP(&commandLine.Output, "output", "o", "", "Output file (required)")
 	flag.StringArrayVarP(&commandLine.Settings, "settings", "s", nil, "Settings, can be repeated")
@@ -59,6 +63,12 @@ func main() {
 	if len(commandLine.Settings) == 0 {
 		fmt.Fprintf(os.Stderr, "specify one or more --settings\n")
 		os.Exit(1)
+	}
+
+	if verbose {
+		log = func(a ...any) {
+			_, _ = fmt.Println(a...)
+		}
 	}
 
 	if err := doWork(&commandLine); err != nil {
