@@ -3,18 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/aws/aws-sdk-go-v2/aws"
-	awsconfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
-	"github.com/aws/aws-sdk-go-v2/service/ssm"
-	"github.com/joho/godotenv"
-	flag "github.com/spf13/pflag"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/ec2/imds"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"github.com/joho/godotenv"
+	flag "github.com/spf13/pflag"
+)
+
+var (
+	version = ""
+	commit = ""
+	date = ""
 )
 
 type CommandLine struct {
@@ -48,6 +55,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "eg: -s /etc/defaults/myservice -s ssm://myservice/{{.ENVIRONMENT}}\n\n")
 		fmt.Fprintln(os.Stderr, "https://github.com/jjeffery/gotmpl")
 		fmt.Fprintln(os.Stderr, "https://go.dev/text/template")
+		if version != "" {
+			fmt.Fprintf(os.Stderr, "\nVersion %s %s %s\n", version, commit, date)
+		}
 		os.Exit(1)
 	}
 
