@@ -5,5 +5,5 @@ NAME = gotmpl
 
 release:
 	mkdir -p bin
-	GOOS=linux GOARCH=amd64 $(GO) build -o bin/$(NAME)_linux_amd64 .
-	(cd bin && gzip $(NAME)_linux_amd64)
+	GOOS=linux GOARCH=amd64 $(GO) build -o bin/$(NAME) .
+	(cd bin && tar cvfz $(NAME)_linux_amd64.tgz $(NAME))
