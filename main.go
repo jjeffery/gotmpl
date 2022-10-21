@@ -102,23 +102,28 @@ func doWork(commandLine *CommandLine) error {
 			continue
 		}
 
-		fileName, err := processStringTemplate(settingsTemplate, variables)
+		settingsFileName, err := processStringTemplate(settingsTemplate, variables)
 		if err != nil {
 			return err
 		}
 
-		ext := filepath.Ext(fileName)
+		ext := filepath.Ext(settingsFileName)
 		switch strings.ToLower(ext) {
 		case ".json", ".yml", ".yaml", ".ini", ".toml":
 			return fmt.Errorf("%s settings files are not supported yet", ext)
 		default:
-			if err := getEnv(fileName, variables); err != nil {
+			if err := getEnv(settingsFileName, variables); err != nil {
 				return err
 			}
 		}
 	}
 
-	changed, err := buildFile(commandLine.Template, commandLine.Output, variables)
+	outputFileName, err := processStringTemplate(commandLine.Output, variables)
+	if err != nil {
+		return fmt.Errorf("cannot generate output file name: %w", err)
+	}
+
+	changed, err := buildFile(commandLine.Template, outputFileName, variables)
 	if err != nil {
 		return err
 	}
