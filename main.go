@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,8 +19,8 @@ import (
 
 var (
 	version = ""
-	commit = ""
-	date = ""
+	commit  = ""
+	date    = ""
 )
 
 type CommandLine struct {
@@ -44,17 +43,21 @@ func main() {
 	flag.Parse()
 
 	if len(os.Args) == 1 || help {
-		fmt.Fprintf(os.Stderr, "Template processor using the Go text template syntax\n")
+		fmt.Fprintf(os.Stderr, "Template processor using the Go language text template syntax\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n", programName())
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
-		fmt.Fprintln(os.Stderr, "\nSettings can be any of:")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "Settings can be any of:")
 		fmt.Fprintln(os.Stderr, " - An environment file (ie contains lines in the format KEY=VALUE)")
 		fmt.Fprintln(os.Stderr, " - A reference to AWS SSM Parameters in the format ssm:/path")
-		fmt.Fprintln(os.Stderr, "\nWhen there are multiple settings, the setting can use values defined previously.")
-		fmt.Fprintf(os.Stderr, "eg: -s /etc/defaults/myservice -s ssm://myservice/{{.ENVIRONMENT}}\n\n")
-		fmt.Fprintln(os.Stderr, "https://github.com/jjeffery/gotmpl")
-		fmt.Fprintln(os.Stderr, "https://go.dev/text/template")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "When there are multiple settings, the setting can use values defined previously.")
+		fmt.Fprintln(os.Stderr, "eg: -s /etc/defaults/myservice -s ssm:/myservice/{{.ENVIRONMENT}}")
+		fmt.Fprintln(os.Stderr)
+		fmt.Fprintln(os.Stderr, "See also:")
+		fmt.Fprintln(os.Stderr, "- https://github.com/jjeffery/gotmpl")
+		fmt.Fprintln(os.Stderr, "- https://go.dev/text/template")
 		if version != "" {
 			fmt.Fprintf(os.Stderr, "\nVersion %s %s %s\n", version, commit, date)
 		}
@@ -290,11 +293,11 @@ func areFilesDifferent(fileName1, fileName2 string) bool {
 		return true
 	}
 
-	file1Contents, err := ioutil.ReadFile(fileName1)
+	file1Contents, err := os.ReadFile(fileName1)
 	if err != nil {
 		return true
 	}
-	file2Contents, err := ioutil.ReadFile(fileName2)
+	file2Contents, err := os.ReadFile(fileName2)
 	if err != nil {
 		return true
 	}
