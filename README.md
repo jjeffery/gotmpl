@@ -1,6 +1,6 @@
 # Gotmpl
 
-Template processor using the [Go language text template syntax](https://go.dev/text/template).
+Template processor using the [Go language text template syntax](https://go.dev/pkg/text/template).
 
 ```
 Usage: gotmpl [options]
