@@ -248,36 +248,47 @@ func buildFile(templateFileName string, outputFileName string, variables map[str
 	}
 	tempFileName := tempFile.Name()
 	deleteTempFile := func() {
-		_ = tempFile.Close()
-		_ = os.Remove(tempFile.Name())
+		_ = os.Remove(tempFileName)
 	}
+	defer deleteTempFile()
 	if err := tmpl.Execute(tempFile, variables); err != nil {
-		deleteTempFile()
+		_ = tempFile.Close()
 		return false, fmt.Errorf("cannot execute %s: %w", templateFileName, err)
 	}
 	if err := tempFile.Close(); err != nil {
-		_ = os.Remove(tempFile.Name())
-		return false, fmt.Errorf("cannot close %s: %w", tempFile.Name(), err)
+		return false, fmt.Errorf("cannot close %s: %w", tempFileName, err)
 	}
 
-	changed = areFilesDifferent(tempFile.Name(), outputFileName)
+	changed = areFilesDifferent(tempFileName, outputFileName)
 	if changed {
-		src, err := os.Open(tempFileName)
-		if err != nil {
+		if err := copyFile(tempFileName, outputFileName); err != nil {
 			return false, err
-		}
-		dest, err := os.Create(outputFileName)
-		if err != nil {
-			_ = os.Remove(tempFileName)
-			return false, fmt.Errorf("cannot open %s: %w", outputFileName, err)
-		}
-		if _, err := io.Copy(dest, src); err != nil {
-			_ = os.Remove(tempFileName)
-			return false, fmt.Errorf("cannot write to %s: %w", outputFileName, err)
 		}
 	}
 
 	return changed, nil
+}
+
+func copyFile(srcFileName, destFileName string) error {
+	src, err := os.Open(srcFileName)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = src.Close()
+	}()
+	dest, err := os.Create(destFileName)
+	if err != nil {
+		return fmt.Errorf("cannot open %s: %w", destFileName, err)
+	}
+	if _, err := io.Copy(dest, src); err != nil {
+		_ = dest.Close()
+		return fmt.Errorf("cannot write to %s: %w", destFileName, err)
+	}
+	if err := dest.Close(); err != nil {
+		return fmt.Errorf("cannot close %s: %w", destFileName, err)
+	}
+	return nil
 }
 
 func areFilesDifferent(fileName1, fileName2 string) bool {
