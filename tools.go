@@ -15,4 +15,4 @@ package main
 // - *IMPORTANT* If you modify this file, (ie add or remove a tool), you must run the
 //    command 'go mod tidy'.
 
-import _ "github.com/goreleaser/goreleaser"
+import _ "github.com/goreleaser/goreleaser/v2"

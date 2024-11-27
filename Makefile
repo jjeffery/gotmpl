@@ -8,4 +8,4 @@ default:
 	@echo "- release"
 
 release:
-	go run github.com/goreleaser/goreleaser release --auto-snapshot --clean
+	go run github.com/goreleaser/goreleaser/v2 release --auto-snapshot --clean
